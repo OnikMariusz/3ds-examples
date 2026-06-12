@@ -1,9 +1,32 @@
-- name: Clone examples
-  run: git clone https://github.com/devkitPro/3ds-examples.git
+name: Build 3DS Examples
 
-- name: Build all examples  
-  run: |
-    cd 3ds-examples
-    make -C graphics/printing/hello-world
-    # albo wszystkie naraz:
-    find . -name Makefile -execdir make \;
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install 3DS tools
+        run: dkp-pacman -Sy --noconfirm 3ds-dev
+
+      - name: Build all examples
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH=$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH
+          find . -name Makefile -execdir make \;
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3ds-examples-built
+          path: "**/*.3dsx"
