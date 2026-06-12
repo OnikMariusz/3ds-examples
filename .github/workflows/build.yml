@@ -1,0 +1,9 @@
+- name: Clone examples
+  run: git clone https://github.com/devkitPro/3ds-examples.git
+
+- name: Build all examples  
+  run: |
+    cd 3ds-examples
+    make -C graphics/printing/hello-world
+    # albo wszystkie naraz:
+    find . -name Makefile -execdir make \;
